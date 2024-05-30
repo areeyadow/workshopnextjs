@@ -1,5 +1,4 @@
 "use client";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,19 +7,18 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-
 import { Button, Card, CardContent } from "@mui/material";
 import router from "next/router";
+import { getUsers, deleteUser } from "../pages/api/baseApi";
+
 export default function GetUser() {
   const [userData, setUserData] = useState([]);
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const res = await axios.get(
-          "https://665424771c6af63f46768ce6.mockapi.io/api/v1/users"
-        );
-        if (res.data) {
-          setUserData(res.data);
+        const data = await getUsers();
+        if (data) {
+          setUserData(data);
         }
       } catch {
         alert("Something went wrong!");
@@ -38,10 +36,8 @@ export default function GetUser() {
 
     if (confirmed) {
       try {
-        const res = await axios.delete(
-          `https://665424771c6af63f46768ce6.mockapi.io/api/v1/users/${id}`
-        );
-        if (res.status === 200 || res.status === 204) {
+        const data = await deleteUser(id);
+        if (data === 200) {
           window.location.reload();
         } else {
           alert("Something went wrong!");

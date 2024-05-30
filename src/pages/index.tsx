@@ -1,9 +1,9 @@
 "use client";
 
 import { Box, Button, CardContent, TextField, Typography } from "@mui/material";
-import axios from "axios";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { createUser } from "./api/baseApi";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -11,16 +11,17 @@ export default function Home() {
   const router = useRouter();
 
   const handleSubmit = async () => {
+    const isActive = true;
+
     if (name && age) {
       try {
-        const res = await axios.post(
-          "https://665429261c6af63f4676a1dd.mockapi.io/api/v1/users",
-          {
-            name,
-            age,
-          }
-        );
-        if (res.status === 200 || 201) {
+        const status = await createUser({
+          name,
+          age,
+          isActive,
+        });
+
+        if (status === 200 || 201) {
           router.push("/user");
         } else {
           alert("something wrong!");

@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Box, Button, CardContent, TextField, Typography } from "@mui/material";
+import { editUser, updateUser } from "../pages/api/baseApi";
 export default function EditUser() {
   const router = useRouter();
   const { id } = router.query;
@@ -12,12 +12,12 @@ export default function EditUser() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const res = await axios.get(
-          `https://665424771c6af63f46768ce6.mockapi.io/api/v1/users/${id}`
-        );
-        if (res.data) {
-          setName(res.data.name);
-          setAge(res.data.age);
+        if (typeof id === "string") {
+          const data = await editUser(id);
+          if (data) {
+            setName(data.name);
+            setAge(data.age);
+          }
         }
       } catch (error) {}
     };
@@ -28,20 +28,17 @@ export default function EditUser() {
   }, [id]); // เรียกใช้ effect เมื่อ id เปลี่ยนแปลง
 
   const updateData = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to edit this user?"
-    );
-    if (!confirmed) return;
-    if (confirmed) {
-      const res = await axios.put(
-        `https://665424771c6af63f46768ce6.mockapi.io/api/v1/users/${id}`,
-        {
-          name,
-          age,
-        }
+    if (typeof id === "string") {
+      const confirmed = window.confirm(
+        "Are you sure you want to edit this user?"
       );
-      if (res.status == 200 || 201) {
-        router.push("/user");
+      if (!confirmed) return;
+
+      if (confirmed) {
+        const status = await updateUser(id, { name, age });
+        if (status == 200 || 201) {
+          router.push("/user");
+        }
       }
     }
   };

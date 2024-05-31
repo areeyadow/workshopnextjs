@@ -1,9 +1,11 @@
-"use client";
-
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import styles from "@/styles/Home.module.css";
 import { Box, Button, CardContent, TextField, Typography } from "@mui/material";
-import { useRouter } from "next/router";
 import { useState } from "react";
 import { createUser } from "./api/baseApi";
+import { useRouter } from "next/router";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -12,35 +14,32 @@ export default function Home() {
 
   const handleSubmit = async () => {
     const isActive = true;
-
     if (name && age) {
       try {
         const status = await createUser({
-          name,
           age,
+          name,
           isActive,
         });
-
-        if (status === 200 || 201) {
+        if (status === 201) {
           router.push("/user");
-        } else {
-          alert("something wrong!");
         }
       } catch {
         alert("something wrong!");
       }
     } else {
-      alert("fill form!");
+      alert("fill the form completely!");
     }
   };
+
   return (
     <Box
       sx={{
-        miWidth: 100,
+        minWidth: 100,
         mt: 10,
-        textAlign: "center",
         display: "flex",
         justifyContent: "center",
+        textAlign: "center",
       }}
     >
       <CardContent
@@ -51,36 +50,33 @@ export default function Home() {
           borderRadius: 5,
         }}
       >
-        <Typography
-          variant="h4"
-          color="text.primary"
-          sx={{ mb: 5, fontWeight: "bold" }}
-        >
-          Create User
-        </Typography>
-        <form>
-          <Box>
-            <TextField
-              id="outlined-basic"
-              label="name"
-              variant="outlined"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              required
-            />
-            <TextField
-              sx={{ ml: 5 }}
-              id="outlined-basic"
-              label="age"
-              variant="outlined"
-              value={age}
-              onChange={(event) => setAge(Number(event.target.value))}
-            />
-          </Box>
-          <Button sx={{ mt: 5 }} variant="contained" onClick={handleSubmit}>
-            Create
-          </Button>
-        </form>
+        <Box>
+          <Typography
+            variant="h4"
+            color="text.primary"
+            sx={{ fontWeight: "bold", mb: 4 }}
+          >
+            hello world
+          </Typography>
+          <TextField
+            id="outlined-basic"
+            label="name"
+            variant="outlined"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          ></TextField>
+          <TextField
+            sx={{ ml: 5 }}
+            id="outlined-basic"
+            label="age"
+            variant="outlined"
+            value={age}
+            onChange={(e) => setAge(Number(e.target.value))}
+          ></TextField>
+        </Box>
+        <Button sx={{ mt: 4 }} variant="contained" onClick={handleSubmit}>
+          Create
+        </Button>
       </CardContent>
     </Box>
   );

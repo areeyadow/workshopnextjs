@@ -1,5 +1,4 @@
-"use client";
-import { useEffect, useState } from "react";
+import { getUsers, deleteUser } from "./api/baseApi";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -7,37 +6,45 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Button, Card, CardContent } from "@mui/material";
-import router from "next/router";
-import { getUsers, deleteUser } from "../pages/api/baseApi";
+import { Button, CardContent } from "@mui/material";
+import { useRouter } from "next/router";
+import { GetServerSideProps } from "next";
 
-export default function GetUser() {
-  const [userData, setUserData] = useState([]);
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const data = await getUsers();
-        if (data) {
-          setUserData(data);
-        }
-      } catch {
-        alert("Something went wrong!");
-      }
-    };
+// กำหนดชนิดข้อมูลสำหรับผู้ใช้
+interface Data {
+  id: string;
+  name: string;
+  age: number;
+}
 
-    getUserData();
-  }, [setUserData]);
+// ฟังก์ชัน getServerSideProps สำหรับดึงข้อมูลในฝั่งเซิร์ฟเวอร์ทุกครั้งที่มีการร้องขอหน้าเว็บ
+export const getServerSideProps: GetServerSideProps = async () => {
+  const data = await getUsers();
 
+  return {
+    props: { data },
+  };
+};
+
+// กำหนดชนิดข้อมูลสำหรับ props ของคอมโพเนนต์
+interface GetUserProps {
+  data: Data[];
+}
+
+// คอมโพเนนต์ User สำหรับแสดงข้อมูลผู้ใช้
+const User = ({ data }: GetUserProps) => {
+  const router = useRouter();
+
+  // ฟังก์ชันสำหรับลบข้อมูลผู้ใช้
   const deleteData = async (id: string) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this user?"
     );
     if (!confirmed) return;
-
     if (confirmed) {
       try {
-        const data = await deleteUser(id);
-        if (data === 200) {
+        const status = await deleteUser(id);
+        if (status === 200) {
           window.location.reload();
         } else {
           alert("Something went wrong!");
@@ -47,6 +54,8 @@ export default function GetUser() {
       }
     }
   };
+
+  // ฟังก์ชันสำหรับแก้ไขข้อมูลผู้ใช้
   const handleEdit = (id: string) => {
     router.push(`/${id}`);
   };
@@ -78,11 +87,11 @@ export default function GetUser() {
               <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Age</TableCell>
-              <TableCell>action</TableCell>
+              <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {userData.map((user: any) => (
+            {data.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.id}</TableCell>
                 <TableCell>{user.name}</TableCell>
@@ -93,7 +102,7 @@ export default function GetUser() {
                     size="small"
                     onClick={() => handleEdit(user.id)}
                   >
-                    edit
+                    Edit
                   </Button>
                   <Button
                     variant="text"
@@ -117,4 +126,6 @@ export default function GetUser() {
       </Button>
     </CardContent>
   );
-}
+};
+
+export default User;
